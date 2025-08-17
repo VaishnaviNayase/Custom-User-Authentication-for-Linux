@@ -1,0 +1,17 @@
+#client 1
+sudo ip tuntap add dev tap1 mode tap
+sudo ip link set tap1 master br0
+sudo ip link set tap1 up
+
+iptables -A FORWARD -i tap1 -o wlp0s20f3 -j ACCEPT
+
+qemu-system-x86_64 -no-reboot -m 4096 -drive if=virtio,file=users,format=raw -smp 2 -netdev tap,id=net0,ifname=tap1,script=no,downscript=no  -device e1000,netdev=net0,mac=52:54:30:40:39:52 -daemonize 
+
+#client 2
+sudo ip tuntap add dev tap2 mode tap
+sudo ip link set tap2 master br0
+sudo ip link set tap2 up
+
+iptables -A FORWARD -i tap2 -o wlp0s20f3 -j ACCEPT
+
+qemu-system-x86_64 -no-reboot -m 4096 -drive if=virtio,file=users1,format=raw -smp 2 -netdev tap,id=net0,ifname=tap2,script=no,downscript=no  -device e1000,netdev=net0,mac=52:54:30:40:39:54 -daemonize
